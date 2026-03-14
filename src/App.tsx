@@ -285,17 +285,38 @@ export default function App() {
 
   const competitors = useMemo(() => Array.from(new Set(filteredData.map(d => d.competitor))), [filteredData]);
 
-  const generateInsights = async () => {
+const generateInsights = async () => {
     setIsGeneratingInsights(true);
-    import { getGeminiApiKey } from 'api/chat';
     try {
-      const apiKey = process.env.GEMINI_API_KEY;
-      if (!apiKey) {
-        setInsights("Error: Gemini API key is missing. Please check your environment variables.");
-        setIsGeneratingInsights(false);
-        return;
+      // 1. We no longer need an import or the API key locally.
+      // 2. We send the data to our secure server-side route.
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          // We pass the data to the API route to handle the prompt construction
+          data: {
+            totalThemesCount,
+            competitors,
+            themeShareData,
+            pivotDataRows: pivotData.rows.slice(0, 50)
+          }
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch insights from the server.');
       }
-      
+
+      const data = await response.json();
+      setInsights(data.text || "No insights generated.");
+    } catch (error) {
+      console.error("Error generating insights:", error);
+      setInsights("Failed to generate insights. Please check your server connection.");
+    } finally {
+      setIsGeneratingInsights(false);
+    }
+  };
       const ai = new GoogleGenAI({ apiKey });
       
       const prompt = `
