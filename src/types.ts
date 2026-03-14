@@ -14,7 +14,7 @@ export interface PivotData {
   adGroup: string;
   keyword: string;
   competitor: string;
-  values: { [timeKey: string]: number };
+  values: { [timestamp: string]: number };
 }
 
-export type TimeGranularity = 'week' | 'month';
+export type TimeGranularity = 'day' | 'week' | 'month';
