@@ -287,6 +287,7 @@ export default function App() {
 
   const generateInsights = async () => {
     setIsGeneratingInsights(true);
+    import { getGeminiApiKey } from 'api/chat';
     try {
       const apiKey = process.env.GEMINI_API_KEY;
       if (!apiKey) {
